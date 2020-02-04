@@ -1,0 +1,218 @@
+html, body {
+	width: 100%;
+	height: 100%;
+	margin: 0px;
+}
+
+/* width */
+::-webkit-scrollbar {
+	width: 10px;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+	background: #f1f1f1; 
+  }
+   
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+	background: #aaa; 
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+	background: #888; 
+  }
+
+
+#main-map {
+	width: 100%;
+	height: 100%;
+}
+
+#main-map.brecha-chart-active {
+	height: 70%;
+}
+
+#brecha-chart-wrapper {
+	display: none;
+	padding: 10px 10px;
+	border: 2px solid #ccc;
+}
+
+#brecha-chart-wrapper.active {
+	display: block;
+}
+
+#brecha-chart-wrapper {
+	width: 100%;
+	height: 30%;
+	
+}
+
+#brecha-chart-wrapper .box {
+	display:flex;
+	flex-flow: column;
+	height: 100%;
+	width: 100%;
+}
+
+#brecha-chart-wrapper .brecha-chart-header {
+	flex: 0 1 auto;
+	width: 100%;
+}
+
+#brecha-chart-wrapper .brecha-chart-content {
+	flex: 1 1 auto;
+	position: relative;
+	min-width: 0;
+	min-height: 0;
+	width: 100%;
+}
+
+a.leaflet-toolbar-icon {
+	color: inherit;
+	font-size: 1rem;
+}
+
+.progress-area label, 
+.processing-area label {
+	font-size: .8rem;
+}
+
+.section-wrapper {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid lightgray;
+}
+
+.section-wrapper h6 {
+	font-weight: 600;
+}
+
+#zona-totales-tbl td {
+	padding-right: 50px;
+}
+
+#processing-results .nav,
+#processing-results .tab-content {
+	font-size: 0.75rem;
+}
+
+#processing-results .nav {
+	margin-bottom: 5px;
+}
+
+
+.zona-point-table tbody tr {
+	cursor:pointer;
+}
+
+/* override bootstrap progress bar width change animation. */
+#processDataModal .progress-bar {
+    -webkit-transition: none !important;
+    transition: none !important;
+}
+
+.leaflet-container.pointer-cursor-enabled {
+    cursor:pointer;
+}
+
+.brecha-chart-dropdown {
+	padding: 0px 10px;
+	margin-left: 10px;
+	font-size: 0.8rem;
+	vertical-align: baseline;
+}
+
+.dropdown-menu {
+	font-size: 0.8rem;
+}
+
+#chart-show-diferences {
+	vertical-align: middle;
+}
+
+.progress-area .fa-spinner,
+.processing-area .fa-spinner {
+	display: none;
+}
+
+.progress-area.working .fa-spinner,
+.processing-area.working .fa-spinner {
+	display: inline-block;
+}
+
+.legend-container {
+	background-color: white;
+	border: 2px solid #ccc;
+	padding: 10px 10px;
+	border-radius: 2px;
+}
+
+.legend-title {
+	text-align: center;
+}
+
+.legend-bin {
+	margin: 5px 0px;
+}
+
+.legend-bin .legend-icon {
+	width: 14px;
+    padding: 3px 3px;
+    border: 1px solid #ccc;
+    margin-right: 10px;
+    height: 14px;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.legend-bin .legend-range {
+	vertical-align: middle;
+}
+
+.loadFilesContainer .fileloader-container {
+	border: 1px solid gray;
+	padding: 0px 5px;
+	border-radius: 3px;
+	margin-bottom:10px;
+	color: black;
+}
+
+.loadFilesContainer .fileloader-container:hover {
+	color: white;
+	background-color: gray;
+}
+
+.loadFilesContainer a {
+	text-decoration: none;
+	color: inherit;
+	display:inline-block;
+	width: 100%;
+	height: 100%;
+}
+
+.divider {
+	width: 100%;
+	border-bottom: 1px solid lightgray;
+	margin-top:10px;
+	margin-bottom:10px;
+}
+
+.bold {
+	font-weight: 700;
+}
+
+.fu-status.fa-times {
+	color: red;
+}
+
+.fu-status.fa-check {
+	color: green;
+}
+
+.fu-status.fa-upload {
+	color: inherit;
+}

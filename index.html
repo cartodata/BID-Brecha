@@ -1,0 +1,295 @@
+<!doctype html>
+
+<html lang="es">
+<head>
+  	<meta charset="utf-8">
+	<title>Brecha</title>
+	<meta name="description" content="Modelo para la determinación y mapeo del nivel de valuación catastral.">
+	<meta name="author" content="CartoData">
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="./libs/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="./libs/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="./libs/datatables/datatables.min.css">
+	<link rel="stylesheet" href="./libs/leaflet/leaflet.css">
+	<link rel="stylesheet" href="./libs/leaflet-sidebar-v2/leaflet-sidebar.min.css">
+	<link rel="stylesheet" href="./libs/leaflet.toolbar/leaflet.toolbar.min.css">
+	<link rel="stylesheet" href="./libs/chart/Chart.min.css">
+	<link rel="stylesheet" href="./css/brecha.css">
+</head>
+
+<body>
+	<div id="main-map">
+	</div>
+
+	<!-- Brecha chart -->
+	<div id="brecha-chart-wrapper">
+		<div class="box">
+			<div class="brecha-chart-header">
+				<label>Estadística de zonas</label>
+				<span class="dropdown">
+					<button class="btn btn-primary dropdown-toggle brecha-chart-dropdown" type="button" id="chart-stat-ds-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value="diff">Diferencia</button>
+					<div class="dropdown-menu selectable chart-stat-dropdown-menu">
+						<a class="dropdown-item" href="#" data-value="diff">Diferencia</a>
+						<a class="dropdown-item" href="#" data-value="come">Comercial</a>
+						<a class="dropdown-item" href="#" data-value="cata">Catastral</a>
+						<a class="dropdown-item" href="#" data-value="comb">Comercial y Catastral</a>
+					</div>
+				</span>
+				<span class="dropdown">
+					<button class="btn btn-primary dropdown-toggle brecha-chart-dropdown" type="button" id="chart-stat-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value="avg">Promedio</button>
+					<div class="dropdown-menu selectable chart-stat-dropdown-menu">
+						<a class="dropdown-item" href="#" data-value="avg">Promedio</a>
+						<a class="dropdown-item" href="#" data-value="median">Mediana</a>
+						<a class="dropdown-item" href="#" data-value="min">Mínima</a>
+						<a class="dropdown-item" href="#" data-value="max">Máxima</a>
+						<a class="dropdown-item" href="#" data-value="std">Desviación</a>
+					</div>
+				</span>
+			</div>
+			<div class="brecha-chart-content">
+				<canvas id="brecha-chart" width="100%" ></canvas>
+			</div>
+		</div>
+	</div>
+
+	<!-- Zona sidebar -->
+	<div id="zona-sidebar" class="leaflet-sidebar" style="display:none">
+		<!-- Nav tabs -->
+		<div class="leaflet-sidebar-tabs">
+			<ul role="tablist"> <!-- top aligned tabs -->
+				<li><a href="#home" role="tab"><i class="fa fa-bar-chart"></i></a></li>
+				<li><a href="#points" role="tab"><i class="fa fa-dot-circle-o"></i></a></li>
+			</ul>
+		</div>
+	
+		<!-- Tab panes -->
+		<div class="leaflet-sidebar-content">
+			<div class="leaflet-sidebar-pane" id="home">
+				<h1 class="leaflet-sidebar-header">Estadísticas<div class="leaflet-sidebar-close"><i class="fa fa-caret-right"></i></div></h1>
+				<div class="section-wrapper">
+					<h6 class="section-title" style="margin-bottom:0px">Zona Id: <span id="sidebar-zona-id"></span></h6>
+				</div>
+				<div class="section-wrapper">
+					<h6 class="section-title">Número de puntos</h6>
+					<table id="zona-totales-tbl">
+						<tr role="row">
+							<td>Comerciales</td>
+							<td id="tot-come" class="text-right"></td>
+						</tr>
+						<tr role="row">
+							<td>Catastrales</td>
+							<td id="tot-cata" class="text-right"></td>
+						</tr>
+						<tr role="row">
+							<td>Total</td>
+							<td id="tot-total" class="text-right"></td>
+						</tr>
+					</table>
+				</div>
+				<div class="section-wrapper">
+					<h6>Estadísticas</h6>
+					<table id="zona-estadisticas" class="display zona-point-table" width="100%"></table>
+				</div>
+				<div id="point-stat-chart-section" class="section-wrapper" style="display:none;">
+					<h6 id="point-stat-chart-title" class="section-title"></h6>
+					<canvas id="point-stat-chart" width="100%"></canvas>
+				</div>
+				<div class="section-wrapper">
+					<h6 class="section-title">Gráfica de diferencias</h6>
+					<canvas id="dif-chart" width="100%"></canvas>
+				</div>
+			</div>
+			<div class="leaflet-sidebar-pane" id="points">
+				<h1 class="leaflet-sidebar-header">Valores<div class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></div></h1>
+				<div class="section-wrapper">
+					<h6>Valores comerciales</h6>
+					<table id="zona-points-come" class="display zona-point-table" width="100%"></table>
+				</div>
+				<div class="section-wrapper">
+					<h6>Valores catastrales</h6>
+					<table id="zona-points-cata" class="display zona-point-table" width="100%"></table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Data progress bar -->
+	<div class="modal" id="processDataModal" tabindex="-1" role="dialog" aria-labelledby="processDataModal" aria-hidden="true" data-keyboard=false data-backdrop="static">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel"><i class="fa fa-fw fa-bolt"></i> Procesamiento de datos</h5>
+					<!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button> -->
+				</div>
+				<div class="modal-body">
+					<div class="progress-area">
+						<h6><i class="fa fa-spinner fa-pulse fa-fw" style="margin-right: 5px;"></i>Bajando datos</h6>
+						<div class="row">
+							<div class="col-md-5">
+								<label>Municipios</label>
+							</div>
+							<div class="col-md-7">
+								<div class="progress">
+									<div id="municipioPg" class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-5">
+								<label>Valores catastrales</label>
+							</div>
+							<div class="col-md-7">
+								<div class="progress">
+									<div id="catastroPg" class="progress-bar progress-bar-striped" role="progressbar"  aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-5">
+								<label>Valores comerciales</label>
+							</div>
+							<div class="col-md-7">
+								<div class="progress">
+									<div id="comercialPg" class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-5">
+								<label>Zonas</label>
+							</div>
+							<div class="col-md-7">
+								<div class="progress">
+									<div id="zonaPg" class="progress-bar progress-bar-striped" role="progressbar"  aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					</br>
+					<div class="processing-area">
+						<h6><i class="fa fa-spinner fa-pulse fa-fw" style="margin-right: 5px;"></i>Procesamiento</h6>
+						<div class="row">
+							<div class="col-md-5">
+								<label>Agrupando por zonas</label>
+							</div>
+							<div class="col-md-7">
+								<div class="progress">
+									<div id="collectingPg" class="progress-bar progress-bar-striped" role="progressbar"  aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-5">
+								<label>Calculando estadísticas</label>
+							</div>
+							<div class="col-md-7">
+								<div class="progress">
+									<div id="statsPg" class="progress-bar progress-bar-striped" role="progressbar"  aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div id="processing-results" style="display:none">
+						</br>
+						<h6>Resultados</h6>
+						<ul class="nav nav-tabs">
+							<li class="nav-item">
+								<a class="nav-link active" id="process-results-tab" data-toggle="tab" href="#pr-results">Generales</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" id="warning-results-tab" data-toggle="tab" href="#pr-warnings"></a>
+							</li>
+						</ul>
+						<div class="tab-content" id="process-tab-content">
+							<div class="tab-pane show active" id="pr-results" role="tabpanel">
+								<table id="brecha-totales-tbl">
+									<tr role="row">
+										<td>Número de zonas</td>
+										<td id="brecha-tot-zona" class="text-right"></td>
+									</tr>
+									<tr role="row">
+										<td>Número de valores comerciales</td>
+										<td id="brecha-tot-come" class="text-right"></td>
+									</tr>
+									<tr role="row">
+										<td>Número de valores catastrales</td>
+										<td id="brecha-tot-cata" class="text-right"></td>
+									</tr>
+								</table>
+							</div>
+							<div class="tab-pane" id="pr-warnings" role="tabpanel">
+								<table id="point-warnings" class="display" width="100%"></table>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button id="processDataButton" type="button" class="btn" data-dismiss="modal">Cancelar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Data options dialog -->
+	<div class="modal" id="dataProcessOptionsModal" tabindex="-1" role="dialog" aria-labelledby="dataProcessOptionsModal" aria-hidden="true" data-keyboard=false data-backdrop="static">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title"><i class="fa fa-fw fa-bolt"></i> Procesamiento de datos</h5>
+				</div>
+				<div class="modal-body">
+					<label style="display:block" class="bold">OPCIONES</label>
+					<label><input type="checkbox" id="processOnlyBaldios"> Sólo baldíos</label>
+					<div class="divider"></div>
+					<label class="bold">CARGAR ARCHIVOS</label>
+					<div class="loadFilesGroup">
+						<div id="loadMuncContainer" class="loadFilesContainer"></div>
+						<div id="loadZonasContainer" class="loadFilesContainer"></div>
+						<div id="loadComercialContainer" class="loadFilesContainer"></div>
+						<div id="loadCatastroContainer" class="loadFilesContainer"></div>
+					</div>
+					<div class="text-right">
+						<button id="startProcessLoadedButton" type="button" class="btn btn-primary">Procesar archivos cargados</button>
+					</div>
+					<div class="divider"></div>
+					<label class="bold">ARCHIVOS PRECARGADOS</label>
+					<div class="text-right">
+						<button id="startProcessPreLoadedButton" type="button" class="btn btn-primary" data-dismiss="modal">Procesar archivos precargados</button>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button id="cancelProcessButton" type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancelar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Scripts -->
+	<script src="./libs/jquery/jquery-3.4.1.min.js"></script>
+	<script src="./libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+	<script src="./libs/leaflet/leaflet.js"></script>
+	<script src="./libs/leaflet.toolbar/leaflet.toolbar.min.js"></script>
+	<script src="./libs/datatables/datatables.min.js"></script>
+	<script src="./libs/turf/turf.min.js"></script>
+	<script src="./js/toolbar-actions.js"></script>
+	<script src="./libs/leaflet-sidebar-v2/leaflet-sidebar.min.js"></script>
+	<script src="./libs/leaflet.svgshapemarkers/leaflet-svg-shape-markers.min.js"></script>
+	<script src="./libs/kdbush/kdbush.min.js"></script>
+	<script src="./libs/math/math.min.js"></script>
+	<script src="./libs/chart/Chart.bundle.min.js"></script>
+	<script src="./libs/chart/chartjs-plugin-annotation.min.js"></script>
+	<script src="./libs/geostats/geostats.min.js"></script>
+	<script src="./js/brecha-data.js"></script>
+	<script src="./js/zona-sidebar.js"></script>
+	<script src="./js/brecha-chart.js"></script>
+	<script src="./libs/bootbox/bootbox.min.js"></script>
+	<script src="./libs/importgeometry/shp.min.js"></script>
+	<script src="./libs/importgeometry/togeojson.js"></script>
+	<script src="./libs/shp-write/shpwrite.js"></script>
+	<script src="./js/fileloader.js"></script>
+	<script src="./js/main.js"></script>
+</body>
+</html>
