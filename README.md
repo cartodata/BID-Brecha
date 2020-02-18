@@ -54,3 +54,13 @@ En caso de no abrirse la ventana en el navegador, se puede también dar clic der
 
 ## Manual de Usuario
 Se incluye un manual de usuario en formato PDF en la carpeta documentos del repositorio con instrucciones detalladas para el uso de la aplicación.
+
+## Autores
+#### Código
+
+* [Juan Carlos Villegas Aguilera](mailto:jcvillegas@cartodata.com "Correo electrónico")
+
+#### Colaboradores
+* [Adrián Hernández Álvarez](mailto:ahernandez@cartodata.com "Correo electrónico")
+* [Jorge Alberto Macías Reyes](mailto:jmacias@cartodata.com "Correo electrónico")
+* [Julio César González Torres](https://github.com/juliogontor "GitHub")
